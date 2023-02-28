@@ -1,0 +1,135 @@
+.data
+     del: .asciz " "
+     sir: .space 303
+     formatPrintf: .asciz "%d\n"
+     formatScanf: .asciz "%300[^\n]"
+     res: .space 4
+     evaluare: .long 0
+     primul: .long 0
+.text
+
+.global main
+
+main:
+    pushl $sir
+    pushl $formatScanf
+    call scanf
+    popl %ebx
+    popl %ebx
+    
+
+    pushl $del
+    pushl $sir
+    call strtok
+    popl %ebx
+    popl %ebx
+
+    pushl %eax
+    call atoi
+    popl %ebx
+
+    movl %eax, primul
+    pushl primul
+
+eticheta_for:
+    
+    pushl $del
+    pushl $0
+    call strtok
+    popl %ebx
+    popl %ebx
+
+
+    cmp $0, %eax
+    je eticheta_exit
+    
+
+    movl %eax, res
+    
+
+    movl res, %edi
+    xorl %ecx, %ecx
+    movb (%edi, %ecx, 1), %al
+    
+    cmp $97, %al
+    je eticheta_add
+    cmp $100, %al
+    je eticheta_div
+    cmp $109, %al
+    je eticheta_mul
+    cmp $115, %al
+    je eticheta_sub
+    
+
+    pushl res
+    call atoi
+    popl %ebx
+
+
+    movl %eax, primul
+    pushl primul
+    jmp eticheta_for
+
+eticheta_add:
+    
+    popl %eax
+    popl %ebx
+    addl %ebx, %eax
+    pushl %eax
+    jmp eticheta_for
+
+eticheta_div:
+    
+    popl %ebx
+    popl %eax
+    xorl %edx, %edx
+    divl %ebx
+    pushl %eax
+    jmp eticheta_for
+
+eticheta_mul:
+
+    popl %eax
+    popl %ebx
+    mull %ebx
+    pushl %eax
+    jmp eticheta_for
+
+
+eticheta_sub:
+
+    popl %eax
+    popl %ebx
+    cmp %eax, %ebx
+    jl eticheta_subs
+    sub %eax, %ebx
+    pushl %ebx
+    jmp eticheta_for
+
+eticheta_subs:
+
+
+    subl %ebx, %eax
+    pushl %eax
+    jmp eticheta_for
+
+eticheta_exit:
+
+
+    popl %ebx
+    movl %ebx, evaluare 
+    pushl evaluare
+    pushl $formatPrintf
+    call printf
+    popl %ebx
+    popl %ebx
+	
+
+
+    pushl $0
+    call fflush
+    popl %ebx
+    
+    movl $1, %eax
+    xorl %ebx, %ebx
+    int $0x80

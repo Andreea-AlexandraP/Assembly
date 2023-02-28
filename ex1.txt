@@ -1,0 +1,233 @@
+.data
+    sirb16: .space 100
+    formatScanf: .asciz "%s"
+    formatPrintf: .asciz "%d\n"
+	d: .long 0
+	e: .long 0
+	c: .long 0
+	formatPrintf2: .asciz "%d "
+	formatPrintf3: .asciz "%c "
+	formatPrintf4: .asciz "let "
+	formatPrintf5: .asciz "add "
+	formatPrintf6: .asciz "sub "
+	formatPrintf7: .asciz "mul "
+	formatPrintf8: .asciz "div "
+	formatPrintf9: .asciz "\n"
+.text
+.global main
+main:
+  //scanf("%s", &sirb16);
+    pushl $sirb16         
+	pushl $formatScanf
+	call scanf
+	popl %ebx
+	popl %ebx  
+
+    xorl %ecx, %ecx	
+
+et_for:
+    cmp $100, %ecx
+	jae exit
+
+
+	
+// if (sirb16[i+1] >= '0' && sirb16[i+1] <= '9')
+//        {
+//            d = sirb16[i+1] - '0'; // '8' > 8
+//        }
+//        else if (sirb16[i+1] >= 'A' && sirb16[i+1] <= 'F')
+//       {
+//            d = sirb16[i+1] - 'A' + 10;
+//        }
+   movl %ecx, %edx
+   incl %edx
+   movl $sirb16, %ebx
+   movb (%ebx, %edx, 1), %al
+ 
+   cmp $48, %al
+   jb cmp2
+   cmp $57, %al
+   ja cmp2
+   movl %eax, d
+   subl $48, d
+   jmp cmp3
+   
+cmp2:
+   cmp $65, %al
+   jb cmp3
+   cmp $70, %al
+   ja cmp3
+   movl %eax, d
+   subl $65, d
+   addl $10, d
+  
+cmp3:
+
+ 
+ 
+ 
+ 
+//        if (sirb16[i+2] >= '0' && sirb16[i+2] <= '9')
+//        {
+//            e = sirb16[i+2] - '0'; // '8' > 8
+//       }
+//       else if (sirb16[i+2] >= 'A' && sirb16[i+2] <= 'F')
+//        {
+//            e = sirb16[i+2] - 'A' + 10;
+//        }
+   
+   
+   incl %edx
+   movl $sirb16, %ebx
+   movb (%ebx, %edx, 1), %al
+ 
+   cmp $48, %al
+   jb cmp4
+   cmp $57, %al
+   ja cmp4
+   movl %eax, e
+   subl $48, e
+   jmp cmp5
+   
+cmp4:
+   cmp $65, %al
+   jb cmp5
+   cmp $70, %al
+   ja cmp5
+   movl %eax, e
+   subl $65, e
+   addl $10, e
+  
+cmp5:
+
+	
+// c=( d<< 4) | (e) ;
+	
+	movl d, %ebx
+
+	shl $4, %ebx
+	
+	or e, %ebx
+	movl %ebx, c
+	
+	
+//switch:
+   movl $sirb16, %ebx
+   movb (%ebx, %ecx, 1), %al
+   cmp $56, %al
+   jne cmp6
+   
+   
+   	pushl %ecx
+	pushl c
+	pushl $formatPrintf2
+	call printf
+	popl %ebx
+	popl %ebx
+	popl %ecx
+    jmp exit_switch
+   
+  
+cmp6:
+   cmp $57, %al
+   jne cmp7
+   movl c, %eax
+   movl $-1, %ebx
+   mul %ebx
+   movl %eax, c
+   
+   pushl %ecx
+   pushl c
+	pushl $formatPrintf2
+	call printf
+	popl %ebx
+	popl %ebx
+	popl %ecx
+    jmp exit_switch
+
+cmp7:
+   cmp $65, %al
+   jne cmp8
+    pushl %ecx
+	pushl c
+	pushl $formatPrintf3
+	call printf
+	popl %ebx
+	popl %ebx
+	popl %ecx
+    jmp exit_switch
+
+
+cmp8:
+   cmp $67, %al
+   jne exit_switch
+  
+  // switch(c) ;
+  cmp $0,c 
+  jne cmp9
+    pushl %ecx
+	pushl $formatPrintf4
+	call printf
+	popl %ebx
+	popl %ecx
+    jmp exit_switch
+ cmp9:
+ 
+  cmp $1,c  
+  jne cmp10
+    pushl %ecx
+	pushl $formatPrintf5
+	call printf
+	popl %ebx
+	popl %ecx
+    jmp exit_switch
+ cmp10:
+  cmp $2,c
+  jne cmp11
+      pushl %ecx
+	pushl $formatPrintf6
+	call printf
+	popl %ebx
+	popl %ecx
+    jmp exit_switch
+ cmp11:
+  cmp $3,c 
+  jne cmp12
+     pushl %ecx
+	pushl $formatPrintf7
+	call printf
+	popl %ebx
+	popl %ecx
+    jmp exit_switch
+ cmp12:
+  cmp $4,c 
+  jne exit_switch
+     pushl %ecx
+	pushl $formatPrintf8
+	call printf
+	popl %ebx
+	popl %ecx
+    jmp exit_switch
+ 
+ 
+	
+exit_switch:
+    	
+		
+		
+cont:
+	addl $3, %ecx
+	jmp et_for 	
+	
+	
+
+exit:
+       pushl $formatPrintf9
+	call printf 
+	popl %ebx
+	pushl $0
+	call fflush
+	popl %ebx
+	movl $1, %eax
+	xorl %ebx, %ebx
+	int $0x80
